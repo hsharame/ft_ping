@@ -1,0 +1,47 @@
+#include "../header/ft_ping.h"
+
+t_ping g_ping;
+
+int main(int argc, char **argv) {
+    memset(&g_ping, 0, sizeof(t_ping));
+    g_ping.pid = getpid() & 0xFFFF;
+    g_ping.min_rtt = -1.0; // -1 indique qu'aucun paquet n'a encore été reçu
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-v") == 0) {
+            g_ping.verbose = 1;
+        } else if (strcmp(argv[i], "-?") == 0) {
+            print_help();
+            return 0;
+        } else if (argv[i][0] != '-') {
+            if (g_ping.target_host == NULL)
+                g_ping.target_host = argv[i];
+        } else {
+            fprintf(stderr, "ft_ping: invalid option -- '%s'\n", argv[i]);
+            fprintf(stderr, "Try 'ft_ping -?' for more information.\n");
+            return 1;
+        }
+    }
+
+    if (!g_ping.target_host) {
+        fprintf(stderr, "ft_ping: missing host operand\n");
+        fprintf(stderr, "Try 'ft_ping -?' for more information.\n");
+        return 1;
+    }
+
+    signal(SIGINT, print_stats);
+
+    init_socket(&g_ping);
+
+    if (g_ping.verbose)
+    	printf("PING %s (%s): %ld data bytes, id 0x%04x = %d\n", 
+        g_ping.target_host, g_ping.dest_ip, PAYLOAD_SIZE, g_ping.pid, g_ping.pid);
+    else
+    	printf("PING %s (%s): %ld data bytes\n", 
+        g_ping.target_host, g_ping.dest_ip, PAYLOAD_SIZE);    // Lancement du timer global et de la boucle
+    
+    gettimeofday(&g_ping.start_time, NULL);
+    loop_ping(&g_ping);
+
+    return 0;
+}
