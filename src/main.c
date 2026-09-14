@@ -2,15 +2,16 @@
 
 t_ping g_ping;
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
     memset(&g_ping, 0, sizeof(t_ping));
-    g_ping.pid = getpid() & 0xFFFF;
-    g_ping.min_rtt = -1.0; // -1 indique qu'aucun paquet n'a encore été reçu
+    g_ping.pid = (uint16_t)getpid();
+    g_ping.min_rtt = -1.0; // no iteration yet
 
+    // TODO verifier la syntaxe et l'ordre des flags, test several hosts
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-v") == 0) {
+        if (strcmp(argv[i], "-v")) {
             g_ping.verbose = 1;
-        } else if (strcmp(argv[i], "-?") == 0) {
+        } else if (strcmp(argv[i], "-?")) {
             print_help();
             return 0;
         } else if (argv[i][0] != '-') {
@@ -22,13 +23,15 @@ int main(int argc, char **argv) {
             return 1;
         }
     }
-
     if (!g_ping.target_host) {
         fprintf(stderr, "ft_ping: missing host operand\n");
         fprintf(stderr, "Try 'ft_ping -?' for more information.\n");
         return 1;
     }
 
+    // TODO dans man Le comportement de signal() varie selon les versions d'Unix, 
+    // et a également varié au cour du temps dans les différentes versions de Linux. 
+    // Évitez son utilisation : utilisez plutôt sigaction(2). 
     signal(SIGINT, print_stats);
 
     init_socket(&g_ping);

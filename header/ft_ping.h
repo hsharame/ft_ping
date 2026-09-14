@@ -18,7 +18,9 @@
 # include <math.h>
 
 # define PACKET_SIZE 64
-# define PAYLOAD_SIZE (PACKET_SIZE - sizeof(struct icmphdr))
+# define PAYLOAD_SIZE (PACKET_SIZE - sizeof(struct icmphdr)) // header ICMP
+
+extern t_ping g_ping;
 
 typedef struct s_ping {
     int             verbose;
@@ -26,18 +28,16 @@ typedef struct s_ping {
     char            dest_ip[INET_ADDRSTRLEN];
     int             sockfd;
     struct sockaddr_in dest_addr;
-    int             seq;
+    int             seq; // iteration TODO doit commncer par 0
     int             packets_sent;
     int             packets_received;
-    struct timeval  start_time;
+    pid_t           pid;
+    // struct timeval  start_time; TODO maybe not need
     double          min_rtt;
     double          max_rtt;
     double          sum_rtt;
-    double	    sum_sq_rtt;
-    pid_t           pid;
+    double	        sum_sq_rtt;
 }   t_ping;
-
-extern t_ping g_ping;
 
 void            print_help(void);
 unsigned short  calculate_checksum(void *b, int len);
