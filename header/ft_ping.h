@@ -18,7 +18,7 @@
 # include <math.h>
 
 # define PACKET_SIZE 64
-# define PAYLOAD_SIZE (PACKET_SIZE - sizeof(struct icmphdr)) // header ICMP
+# define PAYLOAD_SIZE (PACKET_SIZE - sizeof(struct icmphdr)) // without header ICMP
 
 extern t_ping g_ping;
 

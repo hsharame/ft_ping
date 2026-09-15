@@ -7,13 +7,13 @@ unsigned short calculate_checksum(void *b, int len) {
     
     for (sum = 0; len > 1; len -= 2)
     sum += *buf++;
-if (len == 1)
-sum += *(unsigned char *)buf;
+    if (len == 1)
+    sum += *(unsigned char *)buf;
 
-sum = (sum >> 16) + (sum & 0xffff);
-sum += (sum >> 16);
-result = ~sum;
-return result;
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+    result = ~sum;
+    return result;
 }
 
 double get_time_ms(struct timeval *start, struct timeval *end) {

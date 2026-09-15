@@ -29,10 +29,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // TODO dans man Le comportement de signal() varie selon les versions d'Unix, 
-    // et a également varié au cour du temps dans les différentes versions de Linux. 
-    // Évitez son utilisation : utilisez plutôt sigaction(2). 
-    signal(SIGINT, print_stats);
+    // signal(SIGINT, print_stats);
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = print_stats;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    if (sigaction(SIGINT, &sa, NULL) < 0) {
+        perror("ft_ping: sigaction failed");
+        exit(1);
+    }
 
     init_socket(&g_ping);
 
@@ -41,9 +49,9 @@ int main(int argc, char *argv[]) {
         g_ping.target_host, g_ping.dest_ip, PAYLOAD_SIZE, g_ping.pid, g_ping.pid);
     else
     	printf("PING %s (%s): %ld data bytes\n", 
-        g_ping.target_host, g_ping.dest_ip, PAYLOAD_SIZE);    // Lancement du timer global et de la boucle
+        g_ping.target_host, g_ping.dest_ip, PAYLOAD_SIZE);
     
-    gettimeofday(&g_ping.start_time, NULL);
+    // gettimeofday(&g_ping.start_time, NULL);
     loop_ping(&g_ping);
 
     return 0;
