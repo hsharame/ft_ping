@@ -20,8 +20,6 @@
 # define PACKET_SIZE 64
 # define PAYLOAD_SIZE (PACKET_SIZE - sizeof(struct icmphdr)) // without header ICMP
 
-extern t_ping g_ping;
-
 typedef struct s_ping {
     int             verbose;
     char            *target_host;
@@ -38,6 +36,8 @@ typedef struct s_ping {
     double          sum_rtt;
     double	        sum_sq_rtt;
 }   t_ping;
+
+extern t_ping g_ping;
 
 void            print_help(void);
 unsigned short  calculate_checksum(void *b, int len);

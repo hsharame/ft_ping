@@ -9,9 +9,9 @@ int main(int argc, char *argv[]) {
 
     // TODO verifier la syntaxe et l'ordre des flags, test several hosts
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-v")) {
+        if (strcmp(argv[i], "-v") == 0) {
             g_ping.verbose = 1;
-        } else if (strcmp(argv[i], "-?")) {
+        } else if (strcmp(argv[i], "-?") == 0) {
             print_help();
             return 0;
         } else if (argv[i][0] != '-') {
