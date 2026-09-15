@@ -7,7 +7,6 @@ int main(int argc, char *argv[]) {
     g_ping.pid = (uint16_t)getpid();
     g_ping.min_rtt = -1.0; // no iteration yet
 
-    // TODO verifier la syntaxe et l'ordre des flags, test several hosts
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-v") == 0) {
             g_ping.verbose = 1;
@@ -50,8 +49,7 @@ int main(int argc, char *argv[]) {
     else
     	printf("PING %s (%s): %ld data bytes\n", 
         g_ping.target_host, g_ping.dest_ip, PAYLOAD_SIZE);
-    
-    // gettimeofday(&g_ping.start_time, NULL);
+
     loop_ping(&g_ping);
 
     return 0;

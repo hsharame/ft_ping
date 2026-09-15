@@ -35,6 +35,10 @@ void receive_ping(t_ping *ping_data) {
     timeout.tv_usec = 0;
     setsockopt(ping_data->sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
+    // int ttl = 64;
+    // if (setsockopt(ping_data->sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
+    //     perror("ft_ping: setsockopt IP_TTL");
+    // }
     ssize_t ret = recvfrom(ping_data->sockfd, buffer, sizeof(buffer), 0, 
                            (struct sockaddr *)&r_addr, &addr_len);
     gettimeofday(&recv_time, NULL);

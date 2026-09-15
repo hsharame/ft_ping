@@ -26,11 +26,10 @@ typedef struct s_ping {
     char            dest_ip[INET_ADDRSTRLEN];
     int             sockfd;
     struct sockaddr_in dest_addr;
-    int             seq; // iteration TODO doit commncer par 0
+    int             seq;
     int             packets_sent;
     int             packets_received;
     pid_t           pid;
-    // struct timeval  start_time; TODO maybe not need
     double          min_rtt;
     double          max_rtt;
     double          sum_rtt;
