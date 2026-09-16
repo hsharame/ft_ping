@@ -25,6 +25,8 @@ typedef struct s_ping {
     int             ttl;
     int             c;
     int             W;
+    int             quiet;
+    int             r;
     char            *target_host;
     char            dest_ip[INET_ADDRSTRLEN];
     int             sockfd;

@@ -25,9 +25,14 @@ double get_time_ms(struct timeval *start, struct timeval *end) {
 void print_help(void) {
     printf("Usage: ft_ping [OPTION...] HOST ...\n");
     printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
-    printf(" Options valid for all request types:\n");
+    printf(" Options valid for all request types:\n\n");
     printf("  -v                         verbose output\n");
     printf("  -?                         give this help list\n");
+    printf("  -q                         quiet output\n");
+    printf("  -c                         stop after sending NUMBER packets\n");
+    printf("  -W                         number of seconds to wait for response\n");
+    printf("  -r                         send directly to a host on an attached network\n");
+    printf("  --ttl=N                    specify N as time-to-live\n");
 }
 
 void print_stats(int sig) {

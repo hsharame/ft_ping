@@ -22,6 +22,10 @@ int main(int argc, char *argv[]) {
             }
             val = atoi(argv[++i]);
             g_ping.c = val;
+        } else if (strcmp(argv[i], "-q") == 0) {
+            g_ping.quiet = 1;
+        } else if (strcmp(argv[i], "-r") == 0) {
+            g_ping.r = 1;
         } else if (strcmp(argv[i], "-W") == 0) {
             if (i + 1 >= argc) {
                 fprintf(stderr, "ft_ping: option '-W' requires an argument\n");

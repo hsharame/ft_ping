@@ -51,4 +51,12 @@ void init_socket(t_ping *ping_data) {
         perror("ft_ping: setsockopt SO_RCVTIMEO");
         exit(1);
     }
+    if (ping_data->r) {
+        int dontroute = 1;
+        if (setsockopt(ping_data->sockfd, SOL_SOCKET, SO_DONTROUTE, 
+                    &dontroute, sizeof(dontroute)) < 0) {
+            perror("ft_ping: setsockopt SO_DONTROUTE");
+            exit(1);
+        }
+    }
 }

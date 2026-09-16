@@ -57,8 +57,10 @@ void receive_ping(t_ping *ping_data) {
                 ping_data->max_rtt = rtt;
             ping_data->sum_sq_rtt += rtt * rtt;
 
-            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
-                   ret - ip_hdr_len, src_ip, ntohs(icmp_reply->un.echo.sequence), ip->ttl, rtt);
+            if (!ping_data->quiet) {
+                printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
+                    ret - ip_hdr_len, src_ip, ntohs(icmp_reply->un.echo.sequence), ip->ttl, rtt);
+            }
         }
     } 
     else if (icmp_reply->type == ICMP_TIME_EXCEEDED) {
