@@ -45,7 +45,7 @@ void init_socket(t_ping *ping_data) {
             exit(1);
         }
     }
-    struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
+    struct timeval timeout = {.tv_sec = ping_data->W, .tv_usec = 0};
     if (setsockopt(ping_data->sockfd, SOL_SOCKET, SO_RCVTIMEO, 
                    &timeout, sizeof(timeout)) < 0) {
         perror("ft_ping: setsockopt SO_RCVTIMEO");

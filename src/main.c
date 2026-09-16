@@ -3,10 +3,11 @@
 t_ping g_ping;
 
 int main(int argc, char *argv[]) {
-    int val, c;
+    int val;
     memset(&g_ping, 0, sizeof(t_ping));
     g_ping.pid = (uint16_t)getpid();
     g_ping.min_rtt = -1.0; // no iteration yet
+    g_ping.W = 1;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-v") == 0) {
@@ -19,8 +20,19 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "ft_ping: option '-c' requires an argument\n");
                 return 1;
             }
-            c = atoi(argv[++i]);
-            g_ping.c = c;
+            val = atoi(argv[++i]);
+            g_ping.c = val;
+        } else if (strcmp(argv[i], "-W") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "ft_ping: option '-W' requires an argument\n");
+                return 1;
+            }
+            val = atoi(argv[++i]);
+            if (val < 0) {
+                fprintf(stderr, "ft_ping: option value too big: '%s'\n", argv[i]);
+                return 1;
+            }
+            g_ping.W = val;
         } else if (strncmp(argv[i], "--ttl=", 6) == 0) {
             val = atoi(argv[i] + 6);
             if (val <= 0 || val > 255) {
