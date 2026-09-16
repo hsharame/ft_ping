@@ -43,6 +43,7 @@ void            print_help(void);
 unsigned short  calculate_checksum(void *b, int len);
 double          get_time_ms(struct timeval *start, struct timeval *end);
 void            print_stats(int sig);
+void            print_verbose_time_exceeded(const uint8_t *buffer, ssize_t bytes_recvd);
 
 void            init_socket(t_ping *ping_data);
 void            loop_ping(t_ping *ping_data);
