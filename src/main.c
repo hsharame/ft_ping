@@ -3,7 +3,7 @@
 t_ping g_ping;
 
 int main(int argc, char *argv[]) {
-    int val;
+    int val, c;
     memset(&g_ping, 0, sizeof(t_ping));
     g_ping.pid = (uint16_t)getpid();
     g_ping.min_rtt = -1.0; // no iteration yet
@@ -14,6 +14,13 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-?") == 0) {
             print_help();
             return 0;
+        } else if (strcmp(argv[i], "-c") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "ft_ping: option '-c' requires an argument\n");
+                return 1;
+            }
+            c = atoi(argv[++i]);
+            g_ping.c = c;
         } else if (strncmp(argv[i], "--ttl=", 6) == 0) {
             val = atoi(argv[i] + 6);
             if (val <= 0 || val > 255) {
