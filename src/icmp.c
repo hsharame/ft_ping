@@ -86,6 +86,7 @@ void loop_ping(t_ping *ping_data) {
         send_ping(ping_data);
         receive_ping(ping_data);
         if (ping_data->c > 0 && ping_data->packets_sent >= ping_data->c) {
+            print_stats(ping_data->c);
             break;
         }
         sleep(1);
