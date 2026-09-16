@@ -56,3 +56,54 @@ void print_stats(int sig) {
 
     exit(0);
 }
+
+// --ttl -v error
+void print_verbose_time_exceeded(const uint8_t *buffer, ssize_t bytes_recvd) {
+    struct iphdr *outer_ip = (struct iphdr *)buffer;
+    int outer_ip_len = outer_ip->ihl * 4;
+    struct icmphdr *icmp = (struct icmphdr *)(buffer + outer_ip_len);
+
+    ssize_t min_len = outer_ip_len + sizeof(struct icmphdr) + sizeof(struct iphdr);
+    if (bytes_recvd < min_len)
+        return;
+
+    struct iphdr *inner_ip = (struct iphdr *)((uint8_t *)icmp + sizeof(struct icmphdr));
+    uint8_t *ip_ptr = (uint8_t *)inner_ip;
+    int inner_ip_len = inner_ip->ihl * 4;
+
+    printf("IP Hdr Dump:\n ");
+    for (int i = 0; i < inner_ip_len; i += 2) {
+        printf("%02x%02x ", ip_ptr[i], ip_ptr[i + 1]);
+    }
+    printf("\n");
+
+    char src_str[INET_ADDRSTRLEN];
+    char dst_str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(inner_ip->saddr), src_str, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &(inner_ip->daddr), dst_str, INET_ADDRSTRLEN);
+
+    printf("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src      Dst Data\n");
+    printf(" %1x  %1x  %02x %04x %04x   %1x %04x  %02x  %02x %04x %s  %s\n",
+           inner_ip->version,
+           inner_ip->ihl,
+           inner_ip->tos,
+           ntohs(inner_ip->tot_len),
+           ntohs(inner_ip->id),
+           (ntohs(inner_ip->frag_off) >> 13) & 0x7,
+           ntohs(inner_ip->frag_off) & 0x1FFF,
+           inner_ip->ttl,
+           inner_ip->protocol,
+           ntohs(inner_ip->check),
+           src_str,
+           dst_str);
+
+    if (bytes_recvd >= min_len + sizeof(struct icmphdr)) {
+        struct icmphdr *inner_icmp = (struct icmphdr *)((uint8_t *)inner_ip + inner_ip_len);
+        printf("ICMP: type %d, code %d, size %d, id 0x%04x, seq 0x%04x\n",
+               inner_icmp->type,
+               inner_icmp->code,
+               ntohs(inner_ip->tot_len) - inner_ip_len,
+               ntohs(inner_icmp->un.echo.id),
+               ntohs(inner_icmp->un.echo.sequence));
+    }
+}

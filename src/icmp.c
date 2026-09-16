@@ -30,51 +30,54 @@ void receive_ping(t_ping *ping_data) {
     socklen_t addr_len = sizeof(r_addr);
     struct timeval recv_time;
 
-    struct timeval timeout;
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
-    setsockopt(ping_data->sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-
-    if (ping_data->ttl > 0) {
-        if (setsockopt(ping_data->sockfd, IPPROTO_IP, IP_TTL, 
-                    &ping_data->ttl, sizeof(ping_data->ttl)) < 0) {
-            perror("ft_ping: setsockopt IP_TTL");
-        }
-    }
     ssize_t ret = recvfrom(ping_data->sockfd, buffer, sizeof(buffer), 0, 
                            (struct sockaddr *)&r_addr, &addr_len);
     gettimeofday(&recv_time, NULL);
 
-    if (ret > 0) {
-        struct iphdr *ip = (struct iphdr *)buffer;
-        int ip_hdr_len = ip->ihl * 4;
-        
-        struct icmphdr *icmp_reply = (struct icmphdr *)(buffer + ip_hdr_len);
+    if (ret <= 0)
+        return;
 
-        char src_ip[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &(ip->saddr), src_ip, INET_ADDRSTRLEN);
+    struct iphdr *ip = (struct iphdr *)buffer;
+    int ip_hdr_len = ip->ihl * 4;
+    struct icmphdr *icmp_reply = (struct icmphdr *)(buffer + ip_hdr_len);
 
-        if (icmp_reply->type == ICMP_ECHOREPLY) {
-            if (ntohs(icmp_reply->un.echo.id) == ping_data->pid) {
-                struct timeval *send_time = (struct timeval *)(buffer + ip_hdr_len + sizeof(struct icmphdr));
-                double rtt = get_time_ms(send_time, &recv_time);
+    char src_ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(ip->saddr), src_ip, INET_ADDRSTRLEN);
 
-                ping_data->packets_received++;
-                ping_data->sum_rtt += rtt;
-                if (ping_data->min_rtt < 0 || rtt < ping_data->min_rtt)
-                    ping_data->min_rtt = rtt;
-                if (rtt > ping_data->max_rtt)
-                    ping_data->max_rtt = rtt;
-		        ping_data->sum_sq_rtt += rtt * rtt;
-                printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
-                       ret - ip_hdr_len, src_ip, ntohs(icmp_reply->un.echo.sequence), ip->ttl, rtt);
-            }
-        } else {
+    if (icmp_reply->type == ICMP_ECHOREPLY) {
+        if (ntohs(icmp_reply->un.echo.id) == ping_data->pid) {
+            struct timeval *send_time = (struct timeval *)(buffer + ip_hdr_len + sizeof(struct icmphdr));
+            double rtt = get_time_ms(send_time, &recv_time);
+
+            ping_data->packets_received++;
+            ping_data->sum_rtt += rtt;
+            if (ping_data->min_rtt < 0 || rtt < ping_data->min_rtt)
+                ping_data->min_rtt = rtt;
+            if (rtt > ping_data->max_rtt)
+                ping_data->max_rtt = rtt;
+            ping_data->sum_sq_rtt += rtt * rtt;
+
+            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
+                   ret - ip_hdr_len, src_ip, ntohs(icmp_reply->un.echo.sequence), ip->ttl, rtt);
+        }
+    } 
+    else if (icmp_reply->type == ICMP_TIME_EXCEEDED) {
+        struct iphdr *inner_ip = (struct iphdr *)(buffer + ip_hdr_len + sizeof(struct icmphdr));
+        int inner_ip_len = inner_ip->ihl * 4;
+        struct icmphdr *inner_icmp = (struct icmphdr *)((uint8_t *)inner_ip + inner_ip_len);
+
+        if (ntohs(inner_icmp->un.echo.id) == ping_data->pid) {
+            printf("%ld bytes from %s: Time to live exceeded\n",
+                   ret - ip_hdr_len, src_ip);
+
             if (ping_data->verbose) {
-                printf("%ld bytes from %s: type = %d, code = %d\n",
-                       ret - ip_hdr_len, src_ip, icmp_reply->type, icmp_reply->code);
+                print_verbose_time_exceeded((uint8_t *)buffer, ret);
             }
         }
+    } 
+    else if (ping_data->verbose) {
+        printf("%ld bytes from %s: type = %d, code = %d\n",
+               ret - ip_hdr_len, src_ip, icmp_reply->type, icmp_reply->code);
     }
 }
 

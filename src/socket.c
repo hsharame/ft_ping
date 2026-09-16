@@ -34,7 +34,21 @@ void init_socket(t_ping *ping_data) {
 
     ping_data->sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (ping_data->sockfd < 0) {
-        fprintf(stderr, "ft_ping: lacking privilege for raw socket\n");
+        fprintf(stderr, "ft_ping: Lacking privilege for raw socket.\n");
+        exit(1);
+    }
+
+    if (ping_data->ttl > 0) {
+        if (setsockopt(ping_data->sockfd, IPPROTO_IP, IP_TTL, 
+                       &ping_data->ttl, sizeof(ping_data->ttl)) < 0) {
+            perror("ft_ping: setsockopt IP_TTL");
+            exit(1);
+        }
+    }
+    struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
+    if (setsockopt(ping_data->sockfd, SOL_SOCKET, SO_RCVTIMEO, 
+                   &timeout, sizeof(timeout)) < 0) {
+        perror("ft_ping: setsockopt SO_RCVTIMEO");
         exit(1);
     }
 }
