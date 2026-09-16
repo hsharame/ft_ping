@@ -97,7 +97,7 @@ void print_verbose_time_exceeded(const uint8_t *buffer, ssize_t bytes_recvd) {
            src_str,
            dst_str);
 
-    if (bytes_recvd >= min_len + sizeof(struct icmphdr)) {
+    if (bytes_recvd >= min_len + (ssize_t)sizeof(struct icmphdr)) {
         struct icmphdr *inner_icmp = (struct icmphdr *)((uint8_t *)inner_ip + inner_ip_len);
         printf("ICMP: type %d, code %d, size %d, id 0x%04x, seq 0x%04x\n",
                inner_icmp->type,
