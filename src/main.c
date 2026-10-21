@@ -27,16 +27,19 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-r") == 0) {
             g_ping.r = 1;
         } else if (strcmp(argv[i], "-W") == 0) {
-            if (i + 1 >= argc) {
-                fprintf(stderr, "ft_ping: option '-W' requires an argument\n");
+            if (i + 1 < argc) {
+                char *endptr;
+                long val = strtol(argv[i + 1], &endptr, 10);
+                if (*endptr != '\0' || val <= 0) {
+                    fprintf(stderr, "ft_ping: invalid value: %s\n", argv[i + 1]);
+                    return 1;
+                }
+                ping_data->W = (int)val;
+                i++;
+            } else {
+                fprintf(stderr, "ft_ping: option requires an argument -- 'W'\n");
                 return 1;
             }
-            val = atoi(argv[++i]);
-            if (val < 0) {
-                fprintf(stderr, "ft_ping: option value too big: '%s'\n", argv[i]);
-                return 1;
-            }
-            g_ping.W = val;
         } else if (strncmp(argv[i], "--ttl=", 6) == 0) {
             val = atoi(argv[i] + 6);
             if (val <= 0 || val > 255) {
