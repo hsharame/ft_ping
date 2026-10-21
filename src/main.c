@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "ft_ping: invalid value: %s\n", argv[i + 1]);
                     return 1;
                 }
-                ping_data->W = (int)val;
+                g_ping.W = (int)val;
                 i++;
             } else {
                 fprintf(stderr, "ft_ping: option requires an argument -- 'W'\n");
